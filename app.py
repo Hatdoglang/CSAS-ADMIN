@@ -1,3 +1,5 @@
+import os
+import json
 from flask import Flask, render_template, jsonify, request, redirect, url_for, session
 import pandas as pd
 import joblib
@@ -8,26 +10,26 @@ from googletrans import Translator
 from sklearn.metrics import f1_score, precision_score, recall_score
 import re
 import firebase_admin
-from firebase_admin import credentials, auth
-from firebase_admin import exceptions
-from firebase_admin import firestore
+from firebase_admin import credentials, auth, exceptions, firestore
 
+# Logging Configuration
+logging.basicConfig(level=logging.INFO)
 
-
-app = Flask(__name__)
-
-
-# Load Firebase configuration from Render environment secret
+# Firebase Key Setup
 firebase_key_json = os.getenv("FIREBASE_KEY")
 if not firebase_key_json:
     raise ValueError("FIREBASE_KEY environment variable is not set.")
-
 firebase_key = json.loads(firebase_key_json)
 
-# Initialize Firebase Admin SDK
+# Firebase Initialization
 cred = credentials.Certificate(firebase_key)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
+
+# App Configuration
+app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "default_secret_key")
+
 
 app.secret_key = b'\x82\x94\x08\x87\x8c\xbd\xc4%hf \x85\x9d\xf0sj\xba\xe7U\xd7\x01\xf1\xf3\xa7'
 
