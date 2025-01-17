@@ -10,6 +10,8 @@ import re
 import firebase_admin
 from firebase_admin import credentials, auth
 from firebase_admin import exceptions
+from firebase_admin import firestore
+
 
 
 app = Flask(__name__)
