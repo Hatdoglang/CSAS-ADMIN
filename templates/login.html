@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/static/css/style8.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <img src="/static/images/logo2.png" alt="Logo">
+        </div>
+        <h2>Welcome back, good to see you again!</h2>
+        <form id="login-form" method="POST" action="{{ url_for('login') }}">
+            <div class="input-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn-login">Log In</button>
+        </form>
+        
+        <!-- Sign-Up Link -->
+        <div class="signup-link">
+            <p>Don’t have an account? 
+                <a href="#" id="registerAdminLink">Register as Admin</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal for Admin Registration -->
+    <div id="adminRegisterModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Register Admin</h2>
+            <form id="adminRegisterForm">
+                <label for="admin-name">Your Name:</label>
+                <input type="text" id="admin-name" name="name" placeholder="Enter your name" required>
+
+                <label for="admin-email">Your Email:</label>
+                <input type="email" id="admin-email" name="email" placeholder="Enter your email" required>
+
+                <label for="admin-password">Password:</label>
+                <input type="password" id="admin-password" name="password" placeholder="Enter your password" required>
+
+                <label for="admin-role">Role:</label>
+                <input type="text" id="admin-role" name="role" value="admin" readonly>
+
+                <button type="submit">Register Admin</button>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button id="closeModal">Close</button>
+        </div>
+    </div>
+
+    <script type="module" src="/static/js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+/* Default margin and padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-image: url('../images/bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; 
+    color: #333;
+    overflow-y: scroll;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3); 
+    z-index: -1;
+}
+
+/* Header styles */
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.0); 
+    transition: background 0.5s ease; 
+    z-index: 1000;
+}
+
+/* Solid background on scroll */
+header.scrolled {
+    background-color: #1B3A57; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Logo styles */
+.logo {
+    margin-right: 20px; /* Adjust spacing between logo and nav */
+}
+
+.logo img {
+    width: 90px; /* Increased size */
+    height: 80px; /* Increased size */
+    border-radius: 50%;
+}
+
+/* Navigation styles */
+nav {
+    display: flex;
+    align-items: center;
+}
+
+nav ul {
+    list-style-type: none;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+}
+
+nav ul.left,
+nav ul.right {
+    justify-content: center; /* Center the navigation items */
+    margin-left: 0;
+    margin-right: 0;
+}
+
+nav ul li {
+    margin: 0 20px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    font-size: 16px;
+    position: relative;
+}
+
+nav ul li a.active {
+    color: white;
+}
+
+nav a.active::after {
+    content: ""; 
+    display: block;
+    width: 100%; 
+    height: 3px; 
+    background-color:rgb(47, 201, 252);
+    position: absolute; 
+    bottom: -2px;
+    left: 0; 
+  }
+
+nav ul li a:hover {
+    color: rgb(47, 201, 252);
+}
+
+/* Main content styles */
+main {
+    text-align: center;
+    margin: 100px; 
+    margin-top: 200px;
+    padding: 2px; 
+    background-color: whitesmoke; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.about-us {
+    flex: 1; /* Take up remaining space */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Proponents styles */
+.proponents {
+    background-color: rgb(187, 186, 186);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px 10px 0px 0px; 
+}
+
+.proponents p {
+    font-size: 1.5em;
+    color: black;
+    margin-bottom: 40px;
+    margin-top: 40px;
+    font-weight: bold;
+}
+
+.proponent-container {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0 auto;
+    margin-top: 20px;
+}
+
+.proponent {
+    text-align: center;
+}
+
+.proponent img {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.proponent p {
+    font-size: 16px;
+    font-weight: 600;
+    color: black;
+    margin-top: 20px;
+}
+
+/* About Us section styles */
+.about-us-section p {
+    font-size: 1.3em;
+    color: black;
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* Project description styles */
+.project-description {
+    margin: 30px auto;
+    width: 80%;
+    font-size: 1.2em;
+    line-height: 1.5;
+    padding: 20px;
+    text-align: justify; 
+    color: black;
+    margin-bottom: 80px;
+}
+
+/* Footer styles */
+footer {
+    background-color: transparent; 
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    width: 100%;
+    bottom: 0;
+    margin-top: auto;
+    border-top: 1px solid black; 
+    background-color: #1B3A57;
+}
+
+footer p {
+    margin: 0;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: center;
+}

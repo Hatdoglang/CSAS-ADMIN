@@ -1,0 +1,1008 @@
+/* Default margin and padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body styles */
+body {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background-image: url('../images/bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #333;
+    overflow-y: scroll;
+}
+
+/* Sidebar styles */
+.sidebar {
+    background-color: #2fc9fc;
+    width: 270px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    position: fixed;  
+    top: 0;
+    left: 0;
+    height: 100vh; 
+}
+
+.logo-container {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.logo {
+    height: 80px;
+    margin-bottom: 10px;
+}
+/* Sidebar navigation */
+.sidebar-nav {
+    display: flex;         
+    flex-direction: column; 
+    width: 100%;
+    margin-top: 20px;      
+}
+
+/* Sidebar nav items (buttons) */
+.nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; 
+    padding: 15px 20px;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+    width: 100%;  
+}
+
+.nav-item i {
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+.nav-item.active {
+    background-color: white;
+    font-weight: bold;
+    color: #2fc9fc;
+}
+
+.nav-item:hover:not(.active) {
+    background-color: #1ca4d2;
+}
+
+
+/* Main content layout */
+main {
+    margin-left: 270px;  /* Sidebar width */
+    padding: 20px;
+    flex-grow: 1;  /* Take up remaining space */
+}
+
+/* Tabs and tab content styling */
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.tablinks {
+    background-color: #f1f1f1;
+    border: 1px solid #ddd;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-right: 10px;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.tablinks.active {
+    background-color: #3498db;
+    color: white;
+}
+
+.tabcontent {
+    display: none;
+}
+
+.tabcontent.active {
+    display: block;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        position: relative;
+        height: auto;
+        width: 100%;
+    }
+
+    main {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .tabs {
+        flex-direction: column;
+    }
+
+    .tablinks {
+        margin-bottom: 10px;
+    }
+}
+
+#logout{
+    margin-top: 280px;
+}
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: -1;
+}
+
+/* Header styles */
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.0);
+    transition: background 0.5s ease;
+    z-index: 1000;
+}
+
+/* Solid background on scroll */
+header.scrolled {
+    background-color: #1B3A57;
+    /* Solid white background */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Logo styles */
+.logo {
+    margin-right: 20px;
+    /* Adjust spacing between logo and nav */
+}
+
+.logo img {
+    width: 90px;
+    /* Increased size */
+    height: 80px;
+    /* Increased size */
+    border-radius: 50%;
+}
+
+/* Navigation styles */
+nav {
+    display: flex;
+    align-items: center;
+}
+
+nav ul {
+    list-style-type: none;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+}
+
+nav ul.left,
+nav ul.right {
+    justify-content: center;
+    /* Center the navigation items */
+    margin-left: 0;
+    margin-right: 0;
+}
+
+nav ul li {
+    margin: 0 20px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    font-size: 16px;
+    position: relative;
+}
+
+nav ul li a.active {
+    color: white;
+}
+
+nav a.active::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 3px;
+    background-color: rgb(47, 201, 252);
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+}
+
+nav ul li a:hover {
+    color: rgb(47, 201, 252);
+}
+
+/* Sentiment analysis section */
+.sentiment-analysis {
+    position: relative;
+    text-align: center;
+    padding: 12px;
+    margin: 50px;
+    background-color: #fbfcf8;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 90%;
+}
+
+/* Styles for the tabs */
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-top: 80px;
+}
+
+.tabcontent {
+    display: none;
+    margin-top: 40px;
+}
+
+.tablinks {
+    background-color: inherit;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+    color: black;
+    position: relative;
+    margin: 0 30px;
+}
+
+.tablinks.active {
+    background-color: #204fe9;
+    color: white;
+    border-bottom: 2px solid #007bff;
+}
+
+.tablinks.completed {
+    background-color: #204fe9;
+    color: white;
+}
+
+.tablinks .circle {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    margin-right: 10px;
+}
+
+.tablinks:hover {
+    color: black;
+    background-color: #ccc;
+}
+
+.next-btn-container {
+    text-align: right;
+    margin-top: 20px;
+}
+
+/* Data Extraction section styles */
+#DataExtraction {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    min-height: 400px;
+    /* Ensures enough height for the button to be positioned at the bottom */
+}
+
+#DataExtraction h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+#DataExtraction p {
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+    width: 100%;
+    margin-left: 30px;
+}
+
+.search-container form {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.search-container input[type="text"] {
+    width: 80%;
+    padding: 10px;
+    border: transparent;
+    border-radius: 5px 0 0 5px;
+    font-size: 16px;
+}
+
+.search-container button {
+    width: 20%;
+    margin-left: -66px;
+
+   
+}
+.search-container button i{
+    padding: 10px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+}
+
+.search-container button i {
+    font-size: 1.2em;
+    margin-left: 100px;
+}
+
+
+.resort-details {
+    margin: 30px auto;
+    width: 80%;
+    /* Adjust width as needed */
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 40px;
+    background-color: rgb(239, 239, 143);
+    position: relative;
+}
+
+#extractReviewsBtn {
+    position: absolute;
+    bottom: 5px;
+    right: 20px;
+    width: 150px;
+    height: 30px;
+    padding: 10px;
+    font-size: 1rem;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.extracted-reviews {
+    margin: 30px auto;
+    width: 80%;
+    /* Adjust width as needed */
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 40px;
+    background-color: #fff;
+    position: relative;
+    background-color: rgb(184, 233, 233);
+}
+
+.resort-details h3,
+.extracted-reviews h3 {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+.resort-details p,
+.extracted-reviews p {
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.extract-message {
+    display: none;
+    color: blue;
+    margin: 10px 0;
+}
+
+.review-row {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+}
+
+button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 200px;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 1rem;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button i {
+    margin-right: 8px;
+}
+
+#reviewsTable {
+    margin-top: 10px;
+    max-height: 500px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: rgb(184, 233, 233);
+}
+
+/* Adjust table cell padding and alignment */
+.review-container {
+    width: 100%;
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+.review-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+    table-layout: fixed;
+}
+
+.review-table th,
+.review-table td {
+    border: 1px solid #ccc;
+    padding: 10px 15px;
+    text-align: left;
+    word-wrap: break-word;
+}
+
+.review-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.review-table tbody tr:nth-child(odd) {
+    background-color: #fafafa;
+}
+
+.button-group {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.button-group button {
+    margin-right: 10px;
+}
+
+#downloadBtn {
+    background-color: #007bff !important;
+    position: absolute;
+    bottom: 5px;
+    right: 80px;
+    width: 50px;
+    height: 30px;
+    padding: 10px;
+    font-size: 1rem;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+#deleteBtn {
+    background-color: #dc3545 !important;
+    position: absolute;
+    bottom: 5px;
+    right: 20px;
+    width: 50px;
+    height: 30px;
+    padding: 10px;
+    font-size: 1rem;
+    border: none;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+#nextBtn1,
+#nextBtn2 {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    width: 100px;
+}
+
+#nextBtn:hover {
+    background-color: #0056b3;
+}
+
+/* Data Upload section styles */
+#DataUpload {
+    display: none;
+    position: relative;
+    min-height: 400px;
+    /* Ensures enough height for the button to be positioned at the bottom */
+}
+
+#DataUpload.active {
+    display: block;
+}
+
+#DataUpload h3 {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.file-upload {
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 5px;
+    padding: 40px;
+    position: relative;
+}
+
+.file-upload label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.file-upload input[type="file"] {
+    display: none;
+}
+
+.upload-field {
+    display: flex;
+    align-items: center;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    height: 100px;
+    width: 400px;
+    border: dashed #007bff;
+    margin-top: 30px;
+    justify-content: center;
+}
+
+.upload-field img {
+    width: 20px;
+    margin-left: 20px;
+    margin-right: 8px;
+}
+
+.field-container {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    align-self: center;
+    justify-content: center !important;
+}
+
+.file-name {
+    color: #333;
+    text-align: center;
+}
+
+.progress-bar-container {
+    margin-bottom: 1rem;
+    width: 100%;
+    margin-top: 10px;
+}
+
+#file-upload-progress {
+    width: 400px;
+    margin-bottom: 0.5rem;
+    margin-top: 5px;
+}
+
+#file-upload-percentage {
+    display: block;
+    text-align: center;
+    font-size: 0.8rem;
+    margin-top: 0;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 350px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .file-upload input[type="file"] {
+        display: block;
+    }
+
+    .upload-field img {
+        margin-bottom: 0;
+    }
+
+    .result-content {
+        flex-direction: column;
+    }
+
+    .result-left,
+    .result-right {
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+
+    .resort-details,
+    .extracted-reviews {
+        width: 90%;
+        /* Full width on smaller screens */
+        padding: 20px;
+        /* Reduce padding */
+    }
+
+    .search-container form {
+        max-width: 100%;
+    }
+}
+
+/* CSS for header */
+h2 {
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 20px;
+    display: inline-block;
+    text-align: left;
+}
+
+/* Result section styles */
+.result-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.result-left,
+.result-right {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.result-label {
+    text-align: center;
+}
+
+.result-label h4 {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.result-chart {
+    width: 400px;
+    height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 170px;
+}
+
+.result-chart canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.result-percentage {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.result-percentage p {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-top: 60px;
+}
+
+.result-percentage .positive,
+.result-percentage .neutral,
+.result-percentage .negative {
+    margin-top: 10px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.result-percentage .positive i {
+    color: green;
+    margin-right: 10px;
+    font-size: 30px;
+}
+
+.result-percentage .neutral i {
+    color: yellow;
+    margin-right: 10px;
+    font-size: 30px;
+}
+
+.result-percentage .negative i {
+    color: red;
+    margin-right: 10px;
+    font-size: 30px;
+}
+
+.result-conclusion {
+    margin-top: 20px;
+}
+
+.result-conclusion p {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-top: 50px;
+    text-align: left;
+}
+
+/* Style for the Performance Metrics section */
+.result-metrics {
+    position: absolute;
+    display: none;
+    margin-left: 250px;
+    margin-top: -142px;
+    text-align: center;
+
+}
+
+.result-metrics h4 {
+    font-size: 1.2em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.result-metrics p {
+    font-size: 1.0em;
+    color: #555;
+    margin: 8px 0;
+    text-align: center;
+}
+
+
+
+
+#sentimentConclusion {
+    font-size: 1rem;
+    font-weight: normal;
+    text-align: justify;
+    margin-top: 10px;
+    line-height: 1.6;
+    margin-bottom: 100px;
+    margin-right: 50px;
+}
+
+.conclusion-content p {
+    font-size: 1rem;
+    text-align: justify;
+    margin-top: 10px;
+    line-height: 1.6;
+}
+
+.resort-details,
+.extracted-reviews {
+    margin-top: 20px;
+}
+
+#reviewsTable {
+    margin-top: 20px;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+#searchForm {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+}
+
+#searchInput {
+    background-color: transparent;
+    border: 1px solid gray;
+    color: #000;
+    padding: 10px;
+    width: calc(100% - 40px);
+    font-size: 16px;
+}
+
+
+#searchInput:focus {
+    outline: none;
+    border: 1px solid gray;
+}
+
+
+#searchForm button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #000;
+}
+
+
+#extractBtn {
+    position: relative;
+    display: flex;
+    margin: 0;
+    width: 120px;
+    margin-left: 600px;
+    padding: 10px 20px;
+    background-color: #1a4ebd;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.review-row {
+    border: 1px solid #ccc;
+    margin: 10px 0;
+    padding: 10px;
+    background: white;
+}
+
+.button-group {
+    margin-top: 10px;
+}
+
+.button-group button {
+    padding: 10px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.progress-bar-container {
+    margin-top: 10px;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    /* Position above the tooltip */
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+.result-content {
+    display: flex;
+    justify-content: space-between;
+}
+
+.result-label {
+    width: 50%;
+}
+
+.result-chart {
+    width: 50%;
+}
+
+.next-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.next-btn:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .result-content {
+        flex-direction: column;
+    }
+
+    .result-left,
+    .result-right {
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+}

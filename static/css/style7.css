@@ -1,0 +1,94 @@
+/* Messages table styles */
+#messages-table {
+    position: absolute;
+    width: 70%;
+    margin-left: 350px;
+    border-collapse: collapse;
+    margin-top: 220px;
+    
+}
+
+#messages-table th, #messages-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+    color: white;
+    background-color: #888;
+}
+
+#messages-table th {
+    background-color: #2fc9fc;
+    color: white;
+}
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+}
+
+.modal-header {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.modal-footer {
+    text-align: right;
+    margin-top: 10px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Icon style for the "view" button */
+.view-btn {
+    cursor: pointer;
+    color: #ffff;
+    text-decoration: none;
+}
+
+.view-btn:hover {
+    text-decoration: underline;
+}
+
+.status-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    color: #555;
+}
+
+.status-btn .fa-check-circle {
+    color: rgb(66, 228, 66);
+}
+
+.status-btn .fa-circle {
+    color: red;
+}

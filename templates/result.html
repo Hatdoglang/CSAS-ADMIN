@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSAS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style5.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul class="left">
+                <li><a href="/">Home</a></li>
+                <li><a href="/sentimentanalysis" class="active">Sentiment Analysis</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+            <div class="logo">
+                <img src="../static/images/logo.png" alt="CSAS Logo">
+            </div>
+            <ul class="right">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/sign-up">Register</a></li> 
+                <!-- <li><a href="/aboutus">About Us</a></li> -->
+                 <!-- Logout Button -->
+                 {% if session.get('user_id') %}
+                 <li><a href="/logout">Logout</a></li>
+             {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="sentiment-analysis">
+            <h2>SENTIMENT</h2>
+            <div class="chart"></div>
+            <div class="icons1">
+                <img src="C:/Users/Febrieh Malaza/Documents/feb files/CSAS/images/thumbs-up.png" alt="Positive">
+            </div>
+            <div class="icons2">
+                <img src="C:/Users/Febrieh Malaza/Documents/feb files/CSAS/images/point-to-the-right.png" alt="Neutral">
+            </div>
+            <div class="icons3">
+            <img src="C:/Users/Febrieh Malaza/Documents/feb files/CSAS/images/thumbs-down.png" alt="Negative">
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript files or internal scripts here -->
+    <script src="../static/js/script1.js"></script>
+</body>
+</html>

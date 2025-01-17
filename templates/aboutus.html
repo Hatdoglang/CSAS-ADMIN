@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSAS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style4.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul class="left">
+                <li><a href="/">Home</a></li>
+                <li><a href="/sentimentanalysis">Sentiment Analysis</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+            <div class="logo">
+                <img src="../static/images/logo.png" alt="CSAS Logo">
+            </div>
+            <ul class="right">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/sign-up">Register</a></li> 
+                <!-- <li><a href="/aboutus" class="active">About Us</a></li> -->
+                 <!-- Logout Button -->
+                 {% if session.get('user_id') %}
+                 <li><a href="/logout">Logout</a></li>
+             {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="about-us">
+            <div class="proponents">
+                <p>Meet the Team</p>
+                <div class="proponent-container">
+                    <div class="proponent">
+                        <img src="../static/images/proponent1.jpg" alt="Proponent 1">
+                        <p>Febrieh Nhel Marrih Malaza</p>
+                    </div>
+                    <div class="proponent">
+                        <img src="../static/images/proponent2.jpeg" alt="Proponent 2">
+                        <p>Jumir James B. Japinan</p>
+                    </div>
+                    <div class="proponent">
+                        <img src="../static/images/proponent3.jpg" alt="Proponent 3">
+                        <p>Ma. Ella Mae D. Torrejos</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="project-description">
+            <div class="about-us-section">
+                <p>About Us</p>
+            </div>
+            <div class="project-description-content">
+                <p>Our team has embarked on the development of the Customer Sentiment Analysis System (CSAS) with a shared vision of 
+                    revolutionizing the tourism industry in Mati City. Inspired by the growing importance of customer feedback and the need for 
+                    data-driven decision-making, we conceived CSAS to provide valuable insights into customer sentiments expressed in beach resort 
+                    reviews. This project's inception was rooted in the desire to enhance the overall tourism experience and promote sustainable 
+                    growth in Mati City's tourism sector. By leveraging advanced technology and machine learning algorithms, CSAS aims to analyze 
+                    and interpret customer sentiments, empowering decision-makers with actionable data to optimize service offerings and improve 
+                    visitor satisfaction. Through CSAS, we aspire to contribute to the continuous development and competitiveness of beach resorts 
+                    in Mati City, ultimately elevating the city's reputation as a premier tourist destination.</p>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 CSAS. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="../static/js/script3.js"></script>
+</body>
+</html>
