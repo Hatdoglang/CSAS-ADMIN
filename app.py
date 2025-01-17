@@ -15,9 +15,17 @@ from firebase_admin import exceptions
 app = Flask(__name__)
 
 
+# Load Firebase configuration from Render environment secret
+firebase_key_json = os.getenv("FIREBASE_KEY")
+if not firebase_key_json:
+    raise ValueError("FIREBASE_KEY environment variable is not set.")
+
+firebase_key = json.loads(firebase_key_json)
+
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate("firebase-key.json")
+cred = credentials.Certificate(firebase_key)
 firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 app.secret_key = b'\x82\x94\x08\x87\x8c\xbd\xc4%hf \x85\x9d\xf0sj\xba\xe7U\xd7\x01\xf1\xf3\xa7'
 
