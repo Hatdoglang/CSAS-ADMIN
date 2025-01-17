@@ -15,20 +15,20 @@ from firebase_admin import credentials, auth, exceptions, firestore
 # Logging Configuration
 logging.basicConfig(level=logging.INFO)
 
-# Firebase Key Setup
-firebase_key_json = os.getenv("FIREBASE_KEY")
-if not firebase_key_json:
-    raise ValueError("FIREBASE_KEY environment variable is not set.")
-firebase_key = json.loads(firebase_key_json)
+# Get Firebase credentials from environment variables
+firebase_service_account = os.getenv('FIREBASE_SERVICE_ACCOUNT')
+firebase_database_url = os.getenv('FIREBASE_DATABASE_URL')
 
-# Firebase Initialization
-cred = credentials.Certificate(firebase_key)
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+if not firebase_service_account or not firebase_database_url:
+    raise EnvironmentError("Environment variables for Firebase are not set correctly.")
 
+# Initialize Firebase
+cred = credentials.Certificate(json.loads(firebase_service_account))
+firebase_admin.initialize_app(cred, {
+    'databaseURL': firebase_database_url
+})
 # App Configuration
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "default_secret_key")
 
 
 app.secret_key = b'\x82\x94\x08\x87\x8c\xbd\xc4%hf \x85\x9d\xf0sj\xba\xe7U\xd7\x01\xf1\xf3\xa7'
