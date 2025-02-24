@@ -18,8 +18,7 @@ body {
     color: #333;
     overflow-y: scroll;
 }
-
-/* Sidebar styles */
+/* SIDEBAR STYLES */
 .sidebar {
     background-color: #2fc9fc;
     width: 270px;
@@ -28,10 +27,12 @@ body {
     flex-direction: column;
     align-items: center;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-    position: fixed;  
+    position: fixed;
     top: 0;
     left: 0;
-    height: 100vh; 
+    height: 100vh;
+    /* transition for a smoother open/close if you want to animate */
+    transition: transform 0.3s ease;
 }
 
 .logo-container {
@@ -43,19 +44,20 @@ body {
     height: 80px;
     margin-bottom: 10px;
 }
-/* Sidebar navigation */
+
+/* SIDEBAR NAVIGATION */
 .sidebar-nav {
-    display: flex;         
-    flex-direction: column; 
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    margin-top: 20px;      
+    margin-top: 20px;
 }
 
-/* Sidebar nav items (buttons) */
+/* NAV ITEMS */
 .nav-item {
     display: flex;
     align-items: center;
-    justify-content: flex-start; 
+    justify-content: flex-start;
     padding: 15px 20px;
     color: white;
     text-decoration: none;
@@ -64,7 +66,7 @@ body {
     border-radius: 10px;
     margin-bottom: 10px;
     transition: background-color 0.3s ease;
-    width: 100%;  
+    width: 100%;
 }
 
 .nav-item i {
@@ -81,6 +83,73 @@ body {
 .nav-item:hover:not(.active) {
     background-color: #1ca4d2;
 }
+
+/* HAMBURGER TOGGLE (hidden checkbox) */
+.hamburger-toggle {
+    display: none;
+}
+/* Hide checkbox by default */
+.hamburger-toggle {
+    display: none;
+  }
+  
+  /* Hamburger icon lines (3 lines) */
+  .hamburger-icon {
+    /* hidden on large screens */
+    display: none;
+    position: absolute;
+    top: 20px;  /* adjust as needed */
+    right: 20px; /* adjust as needed */
+    width: 30px;
+    height: 24px;
+    cursor: pointer;
+    z-index: 9999; /* ensure it's on top */
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  /* Each line */
+  .hamburger-icon span {
+    display: block;
+    height: 3px;
+    background: #fff; /* ensure it contrasts with your sidebar color */
+    border-radius: 3px;
+  }
+/* Show the hamburger icon on screens <= 768px */
+@media (max-width: 768px) {
+    .hamburger-icon {
+      display: flex; 
+      margin-right: -120px;
+    }
+  }
+/* MEDIA QUERY FOR MOBILE */
+@media (max-width: 768px) {
+    /* Hide the sidebar by sliding it left (if you want it hidden by default) */
+    .sidebar {
+        width: 200px; /* or keep it 270px if you want the same width on mobile */
+        transform: translateX(-100%); /* off-screen by default */
+    }
+
+    /* Show the hamburger icon */
+    .hamburger-icon {
+        display: flex;
+    }
+
+    /* By default, hide the nav menu (if you want to show it only when toggled) */
+    .sidebar-nav {
+        display: none;
+    }
+
+    /* WHEN CHECKBOX IS CHECKED => SHOW SIDEBAR + NAV */
+    .hamburger-toggle:checked ~ .sidebar {
+        transform: translateX(0); /* bring sidebar back on screen */
+    }
+
+    .hamburger-toggle:checked ~ .sidebar .sidebar-nav {
+        display: flex; /* reveal the menu items */
+    }
+}
+
 
 
 /* Main content layout */
@@ -903,19 +972,28 @@ h2 {
     color: #000;
 }
 
-
 #extractBtn {
     position: relative;
     display: flex;
-    margin: 0;
+    justify-content: center;
+    margin: 0 auto;  /* center the button */
     width: 120px;
-    margin-left: 600px;
     padding: 10px 20px;
     background-color: #1a4ebd;
     color: white;
     border: none;
     cursor: pointer;
 }
+
+/* Responsive adjustments for screens 768px or less */
+@media (max-width: 768px) {
+    #extractBtn {
+        width: 100%;   /* full width */
+        padding: 15px; /* increased padding for easier tapping */
+        margin: 10px 0; /* add some vertical margin */
+    }
+}
+
 
 .review-row {
     border: 1px solid #ccc;
@@ -1006,3 +1084,7 @@ h2 {
         margin-bottom: 20px;
     }
 }
+
+
+
+
