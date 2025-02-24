@@ -1,9 +1,8 @@
-// Import necessary Firebase functions
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js"; // Add this line to import getDatabase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+// ---- Firebase Imports & Initialization ----
+import { getApps, initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
 
-// Your Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDbNXaBjr2FVNN3nC4W8CUa9DlQwR2D87s",
   authDomain: "csas-158fc.firebaseapp.com",
@@ -15,203 +14,225 @@ const firebaseConfig = {
   measurementId: "G-26BMZST2LE"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app); // Optional: Initialize Firebase Analytics
+// Prevent duplicate app initialization:
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const analytics = getAnalytics(app); // Optional
+
+// ---- Variables and Constants ----
+// Date range: 2019-01-01 to 2024-12-31
+const START_DATE = new Date('2019-01-01').getTime();
+const END_DATE = new Date('2024-12-31').getTime();
 
 let autocomplete;
-let service;
 let allReviews = [];
 let currentBeachData = {};
-const START_DATE = new Date('2019-01-01').getTime(); // Start date for reviews in milliseconds
-const END_DATE = new Date('2024-12-31').getTime(); // End date for reviews in milliseconds
 
-// Make sure initMap is available globally
+// ---- Google Places Autocomplete ----
+// Expose initMap globally for Google API:
 window.initMap = function() {
-    const input = document.getElementById('searchInput');
-    autocomplete = new google.maps.places.Autocomplete(input, {
-        types: ['establishment', 'geocode'],
-        componentRestrictions: { country: 'PH' }
-    });
-    autocomplete.setFields(['place_id', 'name', 'formatted_address', 'user_ratings_total', 'geometry']);
-    autocomplete.addListener('place_changed', onPlaceChanged);
+  const input = document.getElementById('searchInput');
+  autocomplete = new google.maps.places.Autocomplete(input, {
+    types: ['establishment', 'geocode'],
+    componentRestrictions: { country: 'PH' }
+  });
+  // Set the fields we need from the selected place
+  autocomplete.setFields(['place_id', 'name', 'formatted_address', 'user_ratings_total', 'geometry']);
+  autocomplete.addListener('place_changed', onPlaceChanged);
 };
 
-// Function to handle place change event
 function onPlaceChanged() {
-    const place = autocomplete.getPlace();
-    if (!place.place_id) {
-        return;
-    }
-    displayResortDetails(place);
-    currentBeachData = { place_id: place.place_id, name: place.name };
+  const place = autocomplete.getPlace();
+  if (!place.place_id) return;
+  
+  // Update UI elements with selected place details:
+  document.getElementById('resortName').textContent = place.name;
+  document.getElementById('resortLocation').textContent = place.formatted_address;
+  document.getElementById('reviewCount').textContent = place.user_ratings_total || 0;
+  
+  // Store necessary details globally
+  currentBeachData = {
+    place_id: place.place_id,
+    name: place.name,
+    location: place.formatted_address
+  };
 }
 
-// Function to display resort details
-function displayResortDetails(place) {
-    document.getElementById('resortName').textContent = place.name;
-    document.getElementById('resortLocation').textContent = place.formatted_address;
-    document.getElementById('reviewCount').textContent = place.user_ratings_total || 0;
-}
-
-// Event listener for the extract button
+// ---- Extract Button: Fetch Reviews from Multiple Apify Datasets and Filter by Resort & Date ----
 document.getElementById('extractBtn').addEventListener('click', async () => {
+  try {
     const searchInput = document.getElementById('searchInput').value;
-    if (searchInput) {
-        try {
-            const response = await fetch(`/extract_reviews?placeId=${currentBeachData.place_id}`);
-            
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.statusText}`);
-            }
-
-            const contentType = response.headers.get('Content-Type');
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error(`Expected JSON, but got ${contentType}`);
-            }
-
-            const data = await response.json();
-
-            if (data.error) {
-                throw new Error(data.error || 'Failed to fetch reviews.');
-            }
-
-            allReviews = data.reviews || [];
-            updateReviewsUI();
-            
-            // After reviews are extracted, store them in Firebase
-            storeReviewsInFirebase(allReviews);
-
-        } catch (error) {
-            console.error('Error fetching reviews:', error);
-            alert('Failed to fetch reviews. Please try again.');
-        }
-    } else {
-        alert('Please enter a beach resort name.');
+    if (!searchInput || !currentBeachData.place_id) {
+      alert('Please select a valid beach resort before extracting.');
+      return;
     }
+    
+    // Array of dataset endpoints
+    const endpoints = [
+      "https://api.apify.com/v2/datasets/wztL8eMhrIwxDJDYO/items?token=apify_api_MafkCiPUlsrxsWrpKvE27kXEMlaikw18sr9o",
+      "https://api.apify.com/v2/datasets/LARFEh5HC8klja5Qs/items?token=apify_api_MafkCiPUlsrxsWrpKvE27kXEMlaikw18sr9o",
+      "https://api.apify.com/v2/datasets/Cwum1lvBdW0tdETKW/items?token=apify_api_Qs8F86joUP3qREQSV6y0CIeUE0RuXh1aXZHM",
+      "https://api.apify.com/v2/datasets/nZsxJkisKbvqMGTMR/items?token=apify_api_Qs8F86joUP3qREQSV6y0CIeUE0RuXh1aXZHM",
+      "https://api.apify.com/v2/datasets/xdL0wAt7EoPiRtKgS/items?token=apify_api_Qs8F86joUP3qREQSV6y0CIeUE0RuXh1aXZHM",
+      "https://api.apify.com/v2/datasets/bfJBBfrFJNFX6lVdK/items?token=apify_api_Qs8F86joUP3qREQSV6y0CIeUE0RuXh1aXZHM",
+      "https://api.apify.com/v2/datasets/cxkvOXJd6hgvqm5BO/items?token=apify_api_Qs8F86joUP3qREQSV6y0CIeUE0RuXh1aXZHM",
+      "https://api.apify.com/v2/datasets/NeucZl1qXKczhEf42/items?token=apify_api_Qs8F86joUP3qREQSV6y0CIeUE0RuXh1aXZHM",
+      "https://api.apify.com/v2/datasets/e0QgkKN46WaIpWkt4/items?token=apify_api_Qs8F86joUP3qREQSV6y0CIeUE0RuXh1aXZHM",
+      "https://api.apify.com/v2/datasets/QzSnyhJFlp6gOZMkV/items?token=apify_api_Qs8F86joUP3qREQSV6y0CIeUE0RuXh1aXZHM",
+      "https://api.apify.com/v2/datasets/K247ElBeJpkQ91yKS/items?token=apify_api_Qs8F86joUP3qREQSV6y0CIeUE0RuXh1aXZHM",
+      "https://api.apify.com/v2/datasets/KBaaHmOalTob8HQns/items?token=apify_api_Qs8F86joUP3qREQSV6y0CIeUE0RuXh1aXZHM",
+      "https://api.apify.com/v2/datasets/9zTYNcHlsj0uwvseT/items?token=apify_api_Qs8F86joUP3qREQSV6y0CIeUE0RuXh1aXZHM",
+      "https://api.apify.com/v2/datasets/fYIFRA8ec9XXWLn13/items?token=apify_api_Qs8F86joUP3qREQSV6y0CIeUE0RuXh1aXZHM"
+    ];
+    
+    // Fetch all datasets concurrently
+    const fetchPromises = endpoints.map(url => 
+      fetch(url).then(resp => {
+        if (!resp.ok) {
+          throw new Error(`Error fetching dataset ${url}: ${resp.statusText}`);
+        }
+        return resp.json();
+      })
+    );
+    
+    const datasets = await Promise.all(fetchPromises);
+    // Combine all dataset items into one array
+    const rawReviews = datasets.flat();
+    console.log('Combined raw reviews from Apify:', rawReviews);
+    console.log('Selected resort place_id:', currentBeachData.place_id);
+    console.log('Selected resort name:', currentBeachData.name);
+    
+    // Filter reviews for the selected resort.
+    // Attempt to match by resort name in review.title (if exists) or review.searchString.
+    const reviewsForResort = rawReviews.filter(review => {
+      if (review.title && currentBeachData.name) {
+        return review.title.toLowerCase().includes(currentBeachData.name.toLowerCase());
+      }
+      // Fallback: use searchString if available
+      return review.searchString && review.searchString.toLowerCase().includes(currentBeachData.name.toLowerCase());
+    });
+    console.log('Reviews for the selected resort:', reviewsForResort);
+    
+    // Then filter by date (using publishedAtDate) for reviews between 2019 and 2024
+    allReviews = reviewsForResort.filter(review => {
+      if (!review.publishedAtDate) return false;
+      let reviewDate = new Date(review.publishedAtDate).getTime();
+      return reviewDate >= START_DATE && reviewDate <= END_DATE;
+    });
+    console.log('Filtered reviews (2019–2024) for resort:', allReviews);
+    
+    // Update UI and store reviews in Firebase
+    updateReviewsUI();
+    storeReviewsInFirebase(allReviews);
+    
+  } catch (error) {
+    console.error('Error fetching reviews:', error);
+    alert('Failed to fetch reviews. Please try again.');
+  }
 });
 
-// Function to update the UI with reviews
+// ---- Update the UI with Reviews ----
 function updateReviewsUI() {
-    const reviewsContainer = document.getElementById('reviewsTable');
-    reviewsContainer.innerHTML = ''; // Clear previous reviews
-
-    const filteredReviews = allReviews.filter(review => {
-        let reviewTime = new Date(review.time * 1000); // Convert Unix timestamp to milliseconds
-        return reviewTime.getTime() >= START_DATE && reviewTime.getTime() <= END_DATE;
-    });
-
-    document.getElementById('totalReviews').textContent = filteredReviews.length;
-
-    filteredReviews.forEach(review => {
-        let reviewTime = new Date(review.time * 1000); // Convert Unix timestamp to milliseconds
-
-        // Check for invalid date and display appropriate message
-        const dateStr = isNaN(reviewTime) ? 'Invalid Date' : reviewTime.toLocaleDateString();
-
-        const row = document.createElement('div');
-        row.classList.add('review-row');
-        row.innerHTML = `
-            <p><strong>${review.user_name || 'Unknown'}</strong></p>
-            <p class="rating">Rating: ${review.rating}</p>
-            <p>${review.comments || 'No comments available'}</p>
-            <p class="date">Time: ${dateStr}</p>
-        `;
-        reviewsContainer.appendChild(row);
-    });
+  const reviewsContainer = document.getElementById('reviewsTable');
+  reviewsContainer.innerHTML = '';
+  
+  document.getElementById('totalReviews').textContent = allReviews.length;
+  
+  allReviews.forEach(review => {
+    // Format the date using publishedAtDate (if available)
+    const dateStr = review.publishedAtDate ? new Date(review.publishedAtDate).toLocaleDateString() : 'No date available';
+    
+    const row = document.createElement('div');
+    row.classList.add('review-row');
+    row.innerHTML = `
+    <p><strong>${review.name || 'Unknown'}</strong></p>
+    <p class="rating">Rating: ${review.stars != null ? review.stars : 'N/A'}</p>  <!-- Use stars -->
+    <p>${review.text || 'No comment provided'}</p>
+    <p class="date">Time: ${dateStr}</p>
+  `;
+  
+    reviewsContainer.appendChild(row);
+  });
 }
 
+// ---- Store Reviews in Firebase ----
 function storeReviewsInFirebase(reviews) {
-    const db = getDatabase(app); // Get a reference to Firebase Realtime Database
-
-    // Storing the details for the resort
-    const reviewsRef = ref(db, 'reviews/' + currentBeachData.place_id); // Path where reviews will be stored
-
-    // Storing the details for the resort like location, name, and review count
-    set(ref(db, 'reviews/' + currentBeachData.place_id + '/details'), {
-        location: currentBeachData.location || 'Not Provided', // Make sure to update with actual location if available
-        name: currentBeachData.name || 'Unknown Resort',
-        review_count: reviews.length // Store the count of reviews
-    }).then(() => {
-        console.log('Resort details stored in Firebase!');
-    }).catch((error) => {
-        console.error('Error storing resort details:', error);
-    });
-
-    // Storing the individual reviews
-    reviews.forEach((review, index) => {
-        const reviewRef = ref(db, `reviews/${currentBeachData.place_id}/review_${index}`);
-        set(reviewRef, {
-            comments: review.comments || 'No comment provided', // Default message if no comment
-            rating: review.rating || 0, // Default 0 if no rating
-            time: review.time, // Unix timestamp
-            user_name: review.user_name || 'Anonymous' // Default to 'Anonymous' if no username
-        }).then(() => {
-            console.log(`Review ${index} stored in Firebase!`);
-        }).catch((error) => {
-            console.error(`Error storing review ${index}:`, error);
-        });
-    });
-
-    // Prepare CSV-like data
-    const csvData = reviews.map(review => {
-        const rating = review.rating;
-        const comment = review.comments || 'No comment provided';
-
-        // Predicted Sentiment based on rating
-        const sentimentPredicted = rating >= 4 ? "Positive" : rating === 3 ? "Neutral" : "Negative";
-        const sentimentTrue = sentimentPredicted; // Assuming true sentiment matches predicted sentiment
-
-        return {
-            "True Sentiment": sentimentTrue,
-            "Predicted Sentiment": sentimentPredicted,
-            Comments: comment
-        };
-    });
-
-    // Store CSV-like data in Firebase
-    set(ref(db, `reviews/${currentBeachData.place_id}/csvData`), csvData)
-        .then(() => {
-            console.log('CSV-like data stored in Firebase!');
-        })
-        .catch((error) => {
-            console.error('Error storing CSV-like data:', error);
-        });
+  const db = getDatabase(app);
+  
+  // Save resort details.
+  set(ref(db, 'reviews/' + currentBeachData.place_id + '/details'), {
+    location: currentBeachData.location || 'Not Provided',
+    name: currentBeachData.name || 'Unknown Resort',
+    review_count: reviews.length
+  })
+  .then(() => console.log('Resort details stored in Firebase!'))
+  .catch((error) => console.error('Error storing resort details:', error));
+  
+  // Save each individual review.
+  reviews.forEach((review, index) => {
+    const reviewRef = ref(db, `reviews/${currentBeachData.place_id}/review_${index}`);
+    set(reviewRef, {
+      comments: review.text || 'No comment provided',
+      rating: review.stars != null ? review.stars : 0,  // Use 'stars' instead of 'totalScore'
+      time: review.publishedAtDate || 'No date available',
+      user_name: review.name || 'Anonymous'
+    })
+    
+    .then(() => console.log(`Review ${index} stored in Firebase!`))
+    .catch((error) => console.error(`Error storing review ${index}:`, error));
+  });
+  
+  // Prepare CSV-like data.
+  const csvData = reviews.map(review => {
+    const rating = review.stars != null ? review.stars : 0;
+    const comment = review.text || 'No comment provided';
+    const sentimentPredicted = rating >= 4 ? "Positive" : rating === 3 ? "Neutral" : "Negative";
+    return {
+      "True Sentiment": sentimentPredicted,
+      "Predicted Sentiment": sentimentPredicted,
+      Comments: comment
+    };
+  });
+  
+  set(ref(db, `reviews/${currentBeachData.place_id}/csvData`), csvData)
+    .then(() => console.log('CSV-like data stored in Firebase!'))
+    .catch((error) => console.error('Error storing CSV-like data:', error));
 }
 
+// ---- Download Button: CSV Export ----
+document.getElementById('downloadBtn').addEventListener('click', function() {
+  if (allReviews.length > 0) {
+    const commentsData = allReviews.map(review => {
+      const rating = review.totalScore != null ? review.totalScore : 0;
+      const comment = review.text || 'No comment provided';
+      let sentimentPredicted = rating >= 4 ? "Positive" : rating === 3 ? "Neutral" : "Negative";
+      return {
+        sentimentPredicted,
+        sentimentTrue: sentimentPredicted,
+        comment
+      };
+    });
+    
+    const csvContent = "data:text/csv;charset=utf-8," +
+      "True Sentiment,Predicted Sentiment,Comments\n" +
+      commentsData.map(data => 
+        `"${data.sentimentTrue}","${data.sentimentPredicted}","${data.comment.replace(/"/g, '""')}"`
+      ).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${currentBeachData.name || 'Beach'}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } else {
+    alert('No comments to download.');
+  }
+});
 
-
-// Event listener for the download button
-document.getElementById('downloadBtn').addEventListener('click', function () {
-    if (allReviews.length > 0) {
-        const commentsData = allReviews.map(review => {
-            const rating = review.rating;
-            const comment = review.comments || 'No comment provided'; // Ensure correct comment property
-            
-            // Predicted Sentiment based on rating
-            let sentimentPredicted = rating >= 4 ? "Positive" : rating === 3 ? "Neutral" : "Negative";
-            let sentimentTrue = sentimentPredicted; // Assuming sentiment_true is the same as sentiment_predicted
-
-            return {
-                sentimentPredicted, 
-                sentimentTrue, 
-                comment
-            };
-        });
-
-        // Create CSV content in F1-score format: Sentiment (Predicted), Sentiment (True), Comments
-        const csvContent = "data:text/csv;charset=utf-8," +
-            "True Sentiment,Predicted Sentiment,Comments\n" +
-            commentsData.map(data => `"${data.sentimentTrue}","${data.sentimentPredicted}","${data.comment.replace(/"/g, '""')}"`).join("\n");
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `${currentBeachData.name || 'Beach'}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } else {
-        alert('No comments to download.');
-    }
+// ---- Optional: Delete Button to Clear Reviews from UI ----
+document.getElementById('deleteBtn').addEventListener('click', function() {
+  document.getElementById('reviewsTable').innerHTML = '';
+  document.getElementById('totalReviews').textContent = '0';
+  allReviews = [];
 });
