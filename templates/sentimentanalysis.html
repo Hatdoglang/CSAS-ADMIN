@@ -1,151 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSAS - Beach Reviews</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style2.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA1pk1vqVLx4WbwDNiCqkkT37Ypo6BFVjs&libraries=places"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSAS - Beach Reviews</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style2.css') }}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <!-- GOOGLE PLACES API for Autocomplete -->
+  <script
+    async
+    defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA1pk1vqVLx4WbwDNiCqkkT37Ypo6BFVjs&libraries=places">
+  </script>
+
+  <!-- Inline CSS for responsive sidebar and hamburger icon -->
+  <style>
+    /* Sidebar default styles */
+    .sidebar {
+      background-color: #2fc9fc;
+      width: 270px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      transition: transform 0.3s ease;
+      z-index: 1002;
+    }
+    /* Initially on mobile, sidebar is hidden (off-screen) */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      /* When sidebar has .open, slide it into view */
+      .sidebar.open {
+        transform: translateX(0);
+      }
+    }
+
+    .logo-container {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .logo {
+      height: 80px;
+      margin-bottom: 10px;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      margin-top: 20px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 15px 20px;
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 500;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      transition: background-color 0.3s ease;
+      width: 100%;
+    }
+    .nav-item i {
+      margin-right: 10px;
+      font-size: 20px;
+    }
+    .nav-item.active {
+      background-color: white;
+      font-weight: bold;
+      color: #2fc9fc;
+    }
+    .nav-item:hover:not(.active) {
+      background-color: #1ca4d2;
+    }
+
+    /* Hamburger icon styles */
+    .hamburger-icon {
+      display: none; /* hidden on desktop */
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 30px;
+      height: 24px;
+      cursor: pointer;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 9999;
+    }
+    .hamburger-icon span {
+      display: block;
+      height: 3px;
+      background: #fff;
+      border-radius: 3px;
+    }
+    /* Show hamburger icon on mobile */
+    @media (max-width: 768px) {
+      .hamburger-icon {
+        display: flex;
+      }
+    }
+  </style>
 </head>
 
 <body onload="initMap()">
-   
+  <main>
+    <aside class="sidebar">
+      <div class="logo-container">
+        <img src="/static/images/logo2.png" alt="Customer Sentiment Analysis System Logo" class="logo" />
+      </div>
+      
+      <!-- Hamburger icon (no checkbox needed with JS) -->
+      <div class="hamburger-icon" id="hamburger-icon">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="/sentimentanalysis" class="nav-item active" aria-label="Sentiment Analysis Tab">
+          <i class="fa-regular fa-comments"></i>
+          <span>Sentiment Analysis</span>
+        </a>
+        <a href="/contact" class="nav-item" aria-label="Contact">
+          <i class="fa fa-envelope"></i>
+          <span>Contact Messages</span>
+        </a>
+        <a href="/sign-up" class="nav-item" aria-label="Register">
+          <i class="fas fa-user-plus"></i>
+          <span>Register</span>
+        </a>
+        {% if session.get('user_id') %}
+          <a href="/logout" class="nav-item" id="logout" aria-label="Logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </a>
+        {% endif %}
+      </nav>
+    </aside>
 
-    <main>
-        <aside class="sidebar">
-            <div class="logo-container">
-                <img src="/static/images/logo2.png" alt="Customer Sentiment Analysis System Logo" class="logo">
+    <section class="sentiment-analysis">
+      <div class="tabs">
+        <button class="tablinks active" onclick="openTab(event, 'DataExtraction')" id="tab1">
+          <span class="circle">1</span> Data Extraction
+        </button>
+        <button class="tablinks" onclick="openTab(event, 'DataUpload')" id="tab2">
+          <span class="circle">2</span> Data Upload
+        </button>
+        <button class="tablinks" onclick="openTab(event, 'Result')" id="tab3">
+          <span class="circle">3</span> Result
+        </button>
+      </div>
+
+      <div id="DataExtraction" class="tabcontent" style="display: block;">
+        <h3>Extract reviews from Google.</h3>
+        <div class="search-container">
+          <form id="searchForm" action="#" onsubmit="return false;">
+            <input
+              type="text"
+              placeholder="Search for a beach resort in Mati..."
+              name="search"
+              id="searchInput"
+              aria-label="Search for a beach resort"
+            />
+            <button type="submit">
+              <i class="fa fa-search" aria-hidden="true"></i>
+            </button>
+          </form>
+          <div id="autocomplete-suggestions"></div>
+        </div>
+
+        <div class="resort-details">
+          <h3>Beach Resort Details</h3>
+          <p>Name: <span id="resortName"></span></p>
+          <p>Location: <span id="resortLocation"></span></p>
+          <p>Number of Reviews: <span id="reviewCount"></span></p>
+          <!-- Extract button triggers the Apify run -->
+          <button id="extractBtn" class="extract-btn">Extract</button>
+        </div>
+
+        <div class="extracted-reviews">
+          <h3>Extracted Reviews</h3>
+          <p>Total Reviews: <span id="totalReviews">0</span></p>
+          <div id="reviewsTable"></div>
+          <div class="button-group">
+            <button id="downloadBtn" aria-label="Download reviews">
+              <i class="fa fa-download"></i>
+            </button>
+            <button id="deleteBtn" aria-label="Delete reviews">
+              <i class="fa fa-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <button id="nextBtn1" class="next-btn" onclick="analyzeSentiment()">
+          <i class="fa fa-arrow-right"></i> Next
+        </button>
+      </div>
+
+      <div id="DataUpload" class="tabcontent">
+        <h3>Upload Your Data</h3>
+        <p>Please upload the file containing the reviews you want to analyze. Make sure the file is in CSV/XLSX format.</p>
+        <div class="file-upload">
+          <input type="file" name="file-upload" id="file-upload" style="display: none;" />
+          <label for="file-upload" class="upload-field">
+            <div class="field-container">
+              <img src="../static/images/file-upload.png" alt="Upload Icon" />
+              <span class="file-name">No file selected</span>
             </div>
-            <nav class="sidebar-nav">
-                
-                <a href="/sentimentanalysis" class="nav-item active" aria-label="Sentiment Analysis Tab">
-                    <i class="fa-regular fa-comments"></i>
-                    <span>Sentiment Analysis</span>
-                </a>
-                <a href="/contact" class="nav-item" aria-label="Contact">
-                    <i class="fa fa-envelope"></i>
-                    <span>Contact Messages</span>
-                </a>
-                
-                <a href="/sign-up" class="nav-item" aria-label="Register">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Register</span>
-                </a>
-                {% if session.get('user_id') %}
-                    <a href="/logout" class="nav-item" id="logout" aria-label="Logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </a>
-                {% endif %}
-            </nav>
-        </aside>
-        <section class="sentiment-analysis">
-            <div class="tabs">
-                <button class="tablinks active" onclick="openTab(event, 'DataExtraction')" id="tab1">
-                    <span class="circle">1</span> Data Extraction
-                </button>
-                <button class="tablinks" onclick="openTab(event, 'DataUpload')" id="tab2">
-                    <span class="circle">2</span> Data Upload
-                </button>
-                <button class="tablinks" onclick="openTab(event, 'Result')" id="tab3">
-                    <span class="circle">3</span> Result
-                </button>
+          </label>
+        </div>
+        <div class="progress-bar-container">
+          <progress id="file-upload-progress" value="0" max="100"></progress>
+          <span id="file-upload-percentage"></span>
+        </div>
+        <p class="tooltip">
+          Need help?
+          <span class="tooltiptext">Ensure your file is in a CSV/XLSX format.</span>
+        </p>
+        <button id="nextBtn2" class="next-btn">
+          <i class="fa fa-arrow-right"></i> Submit
+        </button>
+      </div>
+
+      <div id="Result" class="tabcontent">
+        <div class="result-content">
+          <div class="result-left">
+            <div class="result-label">
+              <h4>SENTIMENT</h4>
             </div>
-
-            <div id="DataExtraction" class="tabcontent" style="display: block;">
-                <h3>Extract reviews from Google.</h3>
-                <div class="search-container">
-                    <form id="searchForm" action="#" onsubmit="return false;">
-                        <input type="text" placeholder="Search for a beach resort in Mati..." name="search" id="searchInput" aria-label="Search for a beach resort">
-                        <button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
-                    </form>
-                    <div id="autocomplete-suggestions"></div>
-                </div>
-
-                <div class="resort-details">
-                    <h3>Beach Resort Details</h3>
-                    <p>Name: <span id="resortName"></span></p>
-                    <p>Location: <span id="resortLocation"></span></p>
-                    <p>Number of Reviews: <span id="reviewCount"></span></p>
-                    <button id="extractBtn" class="extract-btn">Extract</button>
-                </div>
-
-                <div class="extracted-reviews">
-                    <h3>Extracted Reviews</h3>
-                    <p>Total Reviews: <span id="totalReviews">0</span></p>
-                    <div id="reviewsTable"></div>
-                    <div class="button-group">
-                        <button id="downloadBtn" aria-label="Download reviews"><i class="fa fa-download"></i></button>
-                        <button id="deleteBtn" aria-label="Delete reviews"><i class="fa fa-trash"></i></button>
-                    </div>
-                </div>
-
-                <button id="nextBtn1" class="next-btn" onclick="analyzeSentiment()"><i class="fa fa-arrow-right"></i> Next</button>
+            <div class="result-chart">
+              <canvas id="sentimentChart" width="400" height="400"></canvas>
             </div>
-
-            <div id="DataUpload" class="tabcontent">
-                <h3>Upload Your Data</h3>
-                <p>Please upload the file containing the reviews you want to analyze. Make sure the file is in CSV/XLSX format.</p>
-                <div class="file-upload">
-                    <input type="file" name="file-upload" id="file-upload" style="display: none;">
-                    <label for="file-upload" class="upload-field">
-                        <div class="field-container">
-                            <img src="../static/images/file-upload.png" alt="Upload Icon">
-                            <span class="file-name">No file selected</span>
-                        </div>
-                    </label>
-                </div>
-                <div class="progress-bar-container">
-                    <progress id="file-upload-progress" value="0" max="100"></progress>
-                    <span id="file-upload-percentage"></span>
-                </div>
-                <p class="tooltip">Need help? <span class="tooltiptext">Ensure your file is in a CSV/XLSX format.</span></p>
-                <button id="nextBtn2" class="next-btn"><i class="fa fa-arrow-right"></i> Submit</button>
+          </div>
+          <div class="result-right">
+            <div class="result-percentage">
+              <p>Sentiment Distribution:</p>
+              <div class="positive">
+                <i class="fas fa-smile"></i> Positive:
+                <span id="positivePercentage"></span>
+              </div>
+              <div class="neutral">
+                <i class="fas fa-meh"></i> Neutral:
+                <span id="neutralPercentage"></span>
+              </div>
+              <div class="negative">
+                <i class="fas fa-frown"></i> Negative:
+                <span id="negativePercentage"></span>
+              </div>
             </div>
-
-            <div id="Result" class="tabcontent">
-                <div class="result-content">
-                    <div class="result-left">
-                        <div class="result-label">
-                            <h4>SENTIMENT</h4>
-                        </div>
-                        <div class="result-chart">
-                            <canvas id="sentimentChart" width="400" height="400"></canvas>
-                        </div>
-                    </div>
-                    <div class="result-right">
-                        <div class="result-percentage">
-                            <p>Sentiment Distribution:</p>
-                            <div class="positive"><i class="fas fa-smile"></i> Positive: <span id="positivePercentage"></span></div>
-                            <div class="neutral"><i class="fas fa-meh"></i> Neutral: <span id="neutralPercentage"></span></div>
-                            <div class="negative"><i class="fas fa-frown"></i> Negative: <span id="negativePercentage"></span></div>
-                        </div>
-                        <!-- Display Precision, Recall, F1-Score -->
-                        <div class="result-metrics">
-                            <h4>Performance Metrics:</h4>
-                            <p>Precision: <span id="precision">{{ precision }}</span></p>
-                            <p>Recall: <span id="recall">{{ recall }}</span></p>
-                            <p>F1-Score: <span id="f1Score">{{ f1_score }}</span></p>
-                        </div>
-                        
-                        <div class="result-conclusion">
-                            <p>Conclusion:</p>
-                            <p id="sentimentConclusion"></p>
-                        </div>
-                        
-                    </div>
-                </div>
+            <!-- Display Precision, Recall, F1-Score -->
+            <div class="result-metrics">
+              <h4>Performance Metrics:</h4>
+              <p>Precision: <span id="precision">{{ precision }}</span></p>
+              <p>Recall: <span id="recall">{{ recall }}</span></p>
+              <p>F1-Score: <span id="f1Score">{{ f1_score }}</span></p>
             </div>
-        </section>
-    </main>
+            <div class="result-conclusion">
+              <p>Conclusion:</p>
+              <p id="sentimentConclusion"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js" defer></script>
+  <!-- External scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js" defer></script>
 
-    <script type="module" src="../static/js/nlp.js"></script>
-    <script src="../static/js/script1.js"></script>
-    <script src="../static/js/rendering.js"></script>
-    <script type="module" src="../static/js/extractdata.js"></script>
+  <!-- Other scripts for your site (like sentiment analysis, rendering, etc.) -->
+  <script type="module" src="../static/js/nlp.js"></script>
+  <script src="../static/js/script1.js"></script>
+  <script src="../static/js/rendering.js"></script>
+
+  <!-- Main script that handles Google Autocomplete, Apify runs, and Firebase storage -->
+  <script type="module" src="../static/js/extractdata.js"></script>
+
+  <!-- JS for hamburger toggle -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const hamburgerIcon = document.getElementById('hamburger-icon');
+      const sidebar = document.querySelector('.sidebar');
+      hamburgerIcon.addEventListener('click', function() {
+        sidebar.classList.toggle('open');
+      });
+    });
+  </script>
 </body>
 </html>
