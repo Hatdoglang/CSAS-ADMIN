@@ -202,7 +202,7 @@ function storeReviewsInFirebase(reviews) {
 document.getElementById('downloadBtn').addEventListener('click', function() {
   if (allReviews.length > 0) {
     const commentsData = allReviews.map(review => {
-      const rating = review.totalScore != null ? review.totalScore : 0;
+      const rating = review.stars != null ? review.stars : 0;
       const comment = review.text || 'No comment provided';
       let sentimentPredicted = rating >= 4 ? "Positive" : rating === 3 ? "Neutral" : "Negative";
       return {
