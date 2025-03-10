@@ -30,13 +30,12 @@ firebase_admin.initialize_app(cred, {
 # App Configuration
 app = Flask(__name__)
 
-
 app.secret_key = b'\x82\x94\x08\x87\x8c\xbd\xc4%hf \x85\x9d\xf0sj\xba\xe7U\xd7\x01\xf1\xf3\xa7'
 
 # Load Naive Bayes model and CountVectorizer
 try:
-    nb_model = joblib.load('naive_bayes_model_glove.pkl')  # Load the Naive Bayes model
-    vectorizer = joblib.load('count_vectorizer.pkl')  # Load the CountVectorizer
+    nb_model = joblib.load('naive_bayes.pkl')  # Load the Naive Bayes model
+    vectorizer = joblib.load('tfidf_vectorizer.pkl')  # Load the CountVectorizer
     print("Naive Bayes model and CountVectorizer loaded successfully.")
 except Exception as e:
     logging.error(f"Error loading Naive Bayes model or CountVectorizer: {e}")
@@ -176,91 +175,69 @@ def set_role():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-
 # analysis
 @app.route('/analyze-sentiment', methods=['POST'])
 def analyze_sentiment():
-    global sentiment_distribution, keyword_counts
-
-    # Reset keyword counts and sentiment distribution
-    keyword_counts = {key: 0 for key in keyword_counts}
-    sentiment_distribution = {'Positive': 0, 'Neutral': 0, 'Negative': 0}
-
-    # Validate uploaded file
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part in the request.'}), 400
-
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No file selected.'}), 400
-
     try:
-        # Read the uploaded file
+        if 'file' not in request.files:
+            return jsonify({"error": "No file provided"}), 400
+
+        file = request.files['file']
+
+        if not file.filename.endswith(('.csv', '.xlsx')):
+            return jsonify({"error": "Invalid file format. Only CSV and XLSX are allowed."}), 400
+
+        # Read file into DataFrame
         if file.filename.endswith('.csv'):
             df = pd.read_csv(file)
-        elif file.filename.endswith('.xlsx'):
-            df = pd.read_excel(file)
         else:
-            return jsonify({'error': 'Invalid file format. Only CSV and XLSX are accepted.'}), 400
+            df = pd.read_excel(file)
 
-        # Ensure the required columns exist
-        required_columns = {'Comments', 'True Sentiment'}
-        if not required_columns.issubset(df.columns):
-            return jsonify({'error': f'Uploaded file must contain the following columns: {required_columns}'}), 400
+        # Normalize column names
+        df.columns = df.columns.str.lower()
 
-        # Extract and preprocess data
-        comments = df['Comments'].dropna().astype(str).tolist()
-        true_sentiments = df['True Sentiment'].dropna().astype(str).tolist()
+        if 'predicted sentiment' not in df.columns:
+            return jsonify({"error": "Missing 'Predicted Sentiment' column in file."}), 400
 
-        if len(comments) != len(true_sentiments):
-            return jsonify({'error': 'Mismatch between number of comments and true sentiments.'}), 400
+        # Drop empty sentiment values
+        df = df.dropna(subset=['predicted sentiment'])
 
-        # Temporary vectorizer and model setup
-        from sklearn.feature_extraction.text import CountVectorizer
-        from sklearn.naive_bayes import MultinomialNB
+        if df.empty:
+            return jsonify({"error": "No valid data found for sentiment analysis."}), 400
 
-        temp_vectorizer = CountVectorizer()
-        temp_model = MultinomialNB()
+        # Count occurrences of each sentiment
+        sentiment_counts = df['predicted sentiment'].value_counts()
 
-        # Train the temporary model
-        X_train = temp_vectorizer.fit_transform(comments)
-        temp_model.fit(X_train, true_sentiments)
+        # Extract counts, default to 0 if not found (converted to Python int)
+        positive_count = int(sentiment_counts.get("Positive", 0))
+        neutral_count = int(sentiment_counts.get("Neutral", 0))
+        negative_count = int(sentiment_counts.get("Negative", 0))
 
-        # Predict sentiment on the same data
-        predicted_sentiments = temp_model.predict(X_train)
+        # Total number of comments
+        total = positive_count + neutral_count + negative_count
 
-        # Update sentiment distribution
-        for prediction in predicted_sentiments:
-            sentiment_distribution[prediction] += 1
+        if total == 0:
+            return jsonify({"error": "No sentiments detected in the file."}), 400
 
-        # Calculate percentages
-        total_count = len(comments)
-        positivePercentage = round((sentiment_distribution.get('Positive', 0) / total_count) * 100, 2) if total_count > 0 else 0
-        neutralPercentage = round((sentiment_distribution.get('Neutral', 0) / total_count) * 100, 2) if total_count > 0 else 0
-        negativePercentage = round((sentiment_distribution.get('Negative', 0) / total_count) * 100, 2) if total_count > 0 else 0
+        # Calculate percentages and remove decimal places
+        positive_percentage = int((positive_count / total) * 100)
+        neutral_percentage = int((neutral_count / total) * 100)
+        negative_percentage = int((negative_count / total) * 100)
 
-        # Determine overall sentiment
-        conclusion = determine_conclusion(positivePercentage, neutralPercentage, negativePercentage)
-
-        # Count keywords in comments
-        for comment in comments:
-            count_keywords_in_review(comment)
-
-        # Prepare the response
-        response = {
-            'positivePercentage': positivePercentage,
-            'neutralPercentage': neutralPercentage,
-            'negativePercentage': negativePercentage,
-            'conclusion': conclusion,
-            'keywordCounts': keyword_counts,
-            'predictedSentiments': predicted_sentiments.tolist(),
-        }
-
-        return jsonify(response)
+        return jsonify({
+            "positivePercentage": positive_percentage,
+            "neutralPercentage": neutral_percentage,
+            "negativePercentage": negative_percentage,
+            "positiveCount": positive_count,
+            "neutralCount": neutral_count,
+            "negativeCount": negative_count,
+            "totalComments": total
+        })
 
     except Exception as e:
-        logging.error(f"Error during sentiment analysis: {e}")
-        return jsonify({'error': 'An error occurred during sentiment analysis. Please try again.', 'details': str(e)}), 500
+        return jsonify({"error": "An error occurred during sentiment analysis.", "details": str(e)}), 500
+
+
 
 
 def determine_conclusion(positivePercentage, neutralPercentage, negativePercentage):
